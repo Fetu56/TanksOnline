@@ -63,25 +63,7 @@ namespace Server //меню сервера - запуск по или отклю
 
             clients.Add(new Client(socketClient));
             Console.WriteLine($"Registrated user join. Info: ip - {socketClient.RemoteEndPoint}, protocol {socketClient.ProtocolType}");
-
-            //string get = GetString();
-            //if (get.Split("").Length == 3)
-            //{
-            //    if (get.StartsWith("Reg"))
-            //    {
-            //        users.Add(User.Registration(get.Split("")[1], get.Split("")[2], socketClient.AddressFamily.ToString()));
-            //        clients.Add(socketClient);
-            //        Console.WriteLine("Registrated new user.");
-            //    }
-            //    else if (get.StartsWith("Log"))
-            //    {
-            //        if (User.HaveAUser(users, get.Split("")[1], get.Split("")[2], socketClient.AddressFamily.ToString()))
-            //        {
-            //            clients.Add(socketClient);
-            //            Console.WriteLine("Registrated user join.");
-            //        }
-            //    }
-            //}
+            socketClient.Send(Encoding.Unicode.GetBytes(clients.Count.ToString()));
 
         }
         public void DisconnectAll()
