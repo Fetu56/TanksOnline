@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Client
@@ -40,6 +41,10 @@ namespace Client
             }
             Console.Read();
         }
+        public void SendTank(TanksLib.Tank tank)
+        {
+            socket.Send(Encoding.Unicode.GetBytes(JsonSerializer.Serialize<TanksLib.Tank>(tank)));
+        }
         public string GetString()
         {
             StringBuilder stringBuilder = new StringBuilder();
@@ -54,4 +59,4 @@ namespace Client
         }
 
     }
-}
+}   

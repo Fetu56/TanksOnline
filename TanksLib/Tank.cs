@@ -1,5 +1,4 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 
 namespace TanksLib
 {
@@ -10,5 +9,6 @@ namespace TanksLib
         public int speed { get; set; }
         public int id { get; set; }
         public Point cords { get; set; }
+        public Rotate rotate { get; set; }
     }
 }

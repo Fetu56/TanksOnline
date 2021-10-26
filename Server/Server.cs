@@ -1,24 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
+using TanksLib;
 
-namespace Server //меню сервера - запуск по или отключить и список юзера кому
+namespace Server
 {
     class Server
     {
         Socket socket;
         IPEndPoint iPEndPoint;
         List<Client> clients;
-        //List<User> users;
+        Task senderMsg;
         bool work = true;
         public Server()
         {
             iPEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8000);
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             clients = new List<Client>();
+            
         }
         public Server(string ip, int port)
         {
@@ -40,8 +44,10 @@ namespace Server //меню сервера - запуск по или отклю
             {
                 socket.Bind(iPEndPoint);
                 socket.Listen(10);
-                Task senderMsg = new Task(msgSender);
+                senderMsg = new Task(msgSender);
                 senderMsg.Start();
+                Task refresher = new Task(Refresh);
+                refresher.Start();
                 while (work)
                 {
                     Connected();
@@ -58,13 +64,31 @@ namespace Server //меню сервера - запуск по или отклю
         private void Connected()
         {
             Socket socketClient = socket.Accept();
-            //socketClient.Send(Encoding.Unicode.GetBytes("Auth on server or login. Log \"[Login] [Pass]\" or \"Reg [Login] [Pass]\" like \"Reg new 123\":"));
-            socketClient.Send(Encoding.Unicode.GetBytes("Connected"));
-
+            
             clients.Add(new Client(socketClient));
             Console.WriteLine($"Registrated user join. Info: ip - {socketClient.RemoteEndPoint}, protocol {socketClient.ProtocolType}");
-            socketClient.Send(Encoding.Unicode.GetBytes(clients.Count.ToString()));
+            socketClient.Send(Encoding.Unicode.GetBytes(clients.Count.ToString()+','));
 
+        }
+
+        public void Refresh()
+        {
+            while(senderMsg.Status != TaskStatus.Canceled && !Environment.HasShutdownStarted)
+            {
+                if(clients.Where(x => x.needToRef).Count() > 0)
+                {
+                    RefreshActions();
+                }
+            }
+            
+        }
+        public void RefreshActions()
+        {
+            List<Tank> tanks = new List<Tank>();
+            clients.ForEach(x => tanks.Add(x.tankClient));
+            SendMsgToAll(JsonSerializer.Serialize<List<Tank>>(tanks));
+            Console.WriteLine($"Data sended to users, {tanks.Count()} of tanks.");
+            clients.ForEach(x => x.needToRef = false);
         }
         public void DisconnectAll()
         {
@@ -78,19 +102,16 @@ namespace Server //меню сервера - запуск по или отклю
             {
                 try
                 {
-                    Console.WriteLine("Выберите действие:\n[1] - запуск программы\n[2] - отключение\n[3] - смена данных в реестре\n[0] - выход:");
+                    Console.WriteLine("Выберите действие:\n[1] - отключение\n[0] - выход:");
                     msg = Console.ReadLine();
                     Option option = Option.nullOp;
                     switch (msg)
                     {
                         case "1":
-                            option = Option.startProg;
-                            break;
-                        case "2":
                             option = Option.disconnect;
                             break;
-                        case "3":
-                            option = Option.changeReg;
+                        case "2":
+                            option = Option.startProg;
                             break;
                         case "0":
                             option = Option.exit;
@@ -128,8 +149,10 @@ namespace Server //меню сервера - запуск по или отклю
                                         int id = int.Parse(get);
                                         clients[id].Send("→disconnect@");
                                         clients[id].Disconnect();
-                                        clients.RemoveAt(id);
                                     }
+                                    break;
+                                case Option.startProg:
+                                    RefreshActions();
                                     break;
                             }
                         }
@@ -161,17 +184,6 @@ namespace Server //меню сервера - запуск по или отклю
             } while (sc.Available > 0);
             return stringBuilder.ToString();
         }
-        private string GetCords()
-        {
-            Console.WriteLine("Введите координаты в формате \"x y\":");
-            int cordX = 0;
-            int cordY = 0;
-            string get = Console.ReadLine();
-            while (!int.TryParse(get.Split(' ')[0], out cordX) || !int.TryParse(get.Split(' ')[1], out cordY))
-            {
-                get = Console.ReadLine();
-            }
-            return cordX + " " + cordY;
-        }
+
     }
 }
