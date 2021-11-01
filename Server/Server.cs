@@ -5,8 +5,11 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using TanksLib;
+using Timer = System.Timers.Timer;
 
 namespace Server
 {
@@ -22,8 +25,17 @@ namespace Server
             iPEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8000);
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             clients = new List<Client>();
-            
+            Timer timer = new Timer();
+            timer.Elapsed += Timer_Elapsed;
+            timer.Interval = 500;
+            timer.Start();
         }
+
+        private void Timer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            RefreshActions();
+        }
+
         public Server(string ip, int port)
         {
             try
@@ -73,12 +85,17 @@ namespace Server
 
         public void Refresh()
         {
-            while(senderMsg.Status != TaskStatus.Canceled && !Environment.HasShutdownStarted)
+            while(!Environment.HasShutdownStarted)
             {
-                if(clients.Where(x => x.needToRef).Count() > 0)
+                try
                 {
-                    RefreshActions();
+                    if (clients.Where(x => x.needToRef).Count() > 0)
+                    {
+                        Thread.Sleep(10);
+                        RefreshActions();
+                    }
                 }
+                catch(Exception ex) { Console.WriteLine(ex); }
             }
             
         }
@@ -102,7 +119,7 @@ namespace Server
             {
                 try
                 {
-                    Console.WriteLine("Выберите действие:\n[1] - отключение\n[0] - выход:");
+                    Console.WriteLine("Выберите действие:\n[1] - отключение\n[2] - обновить\n[0] - выход:");
                     msg = Console.ReadLine();
                     Option option = Option.nullOp;
                     switch (msg)
@@ -170,7 +187,14 @@ namespace Server
         }
         private void SendMsgToAll(string msg)
         {
-            clients.ForEach(x => x.Send(msg));
+            for(int i = 0; i < clients.Count; i++)
+            {
+                try
+                {
+                    clients[i].Send(msg);
+                }
+                catch { }
+            }
         }
         private string GetString(Socket sc)
         {
