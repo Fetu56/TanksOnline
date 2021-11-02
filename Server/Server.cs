@@ -27,7 +27,7 @@ namespace Server
             clients = new List<Client>();
             Timer timer = new Timer();
             timer.Elapsed += Timer_Elapsed;
-            timer.Interval = 500;
+            timer.Interval = 1000;
             timer.Start();
         }
 
@@ -76,10 +76,13 @@ namespace Server
         private void Connected()
         {
             Socket socketClient = socket.Accept();
+            if(clients.Where(x => x.tankClient.hp > 0 && x.socket.Connected).Count() < 4)
+            {
+                clients.Add(new Client(socketClient));
+                Console.WriteLine($"Registrated user join. Info: ip - {socketClient.RemoteEndPoint}, protocol {socketClient.ProtocolType}");
+                socketClient.Send(Encoding.Unicode.GetBytes(clients.Count.ToString() + ','));
+            }
             
-            clients.Add(new Client(socketClient));
-            Console.WriteLine($"Registrated user join. Info: ip - {socketClient.RemoteEndPoint}, protocol {socketClient.ProtocolType}");
-            socketClient.Send(Encoding.Unicode.GetBytes(clients.Count.ToString()+','));
 
         }
 
@@ -102,9 +105,9 @@ namespace Server
         public void RefreshActions()
         {
             List<Tank> tanks = new List<Tank>();
-            clients.ForEach(x => tanks.Add(x.tankClient));
+            clients.ForEach(x => tanks.Add(x.socket.Connected && x.tankClient.hp > 0 ? x.tankClient : null));
             SendMsgToAll(JsonSerializer.Serialize<List<Tank>>(tanks));
-            Console.WriteLine($"Data sended to users, {tanks.Count()} of tanks.");
+            Console.WriteLine($"Data sended to users, {tanks.Where(x => x != null).Count()} of tanks.");
             clients.ForEach(x => x.needToRef = false);
         }
         public void DisconnectAll()
