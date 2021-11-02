@@ -42,7 +42,7 @@ namespace ClientGame
             SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
             this.gameField.Paint += GameField_Paint;
             this.gameField.BackgroundImage = brickimg;
-            client.SendTank(new Tank() { name = "PL-"+id.ToString(), cords = new Point(100, 100), speed = 15, id = id, bulletref = 0, hp = 40});
+            client.SendTank(new Tank() { name = "PL-"+id.ToString(), cords = new Point(100, 100), speed = 15, id = id, bulletref = 0, hp = 100});
             this.KeyUp += FormKeyDown;
             game = new Task(GameManager);
             game.Start();
