@@ -34,7 +34,7 @@ namespace Server
             {
                 try
                 {
-                    if (clients.Where(x => x.needToRef).Count() > 0)
+                    if (clients.Where(x => x!= null && x.needToRef).Count() > 0)
                     {
                         Thread.Sleep(10);
                         RefreshActions();

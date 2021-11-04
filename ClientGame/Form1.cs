@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -20,12 +21,13 @@ namespace ClientGame
         Client.Client client;
         public List<Tank> tanks { get; private set; }
         const int TankSize = 50;
-        Image tankimg = Image.FromFile("tank.png");
-        Image brickimg = Image.FromFile("brick.png");
+        Image tankimg;
+        Image brickimg;
         Task game;
         string json;
         public Form1()
         {
+            SetImages(); 
             tanks = new List<Tank>();
             client = new Client.Client();
             client.Start();
@@ -47,7 +49,26 @@ namespace ClientGame
             game = new Task(GameManager);
             game.Start();
         }
+        void SetImages()
+        {
+            if (File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\tanksOnline\\tank.png"))
+            {
+                tankimg = Image.FromFile(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\tanksOnline\\tank.png");
+            }
+            else
+            {
+                tankimg = Image.FromFile("tank.png");
+            }
 
+            if (File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\tanksOnline\\brick.png"))
+            {
+                brickimg = Image.FromFile(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\tanksOnline\\brick.png");
+            }
+            else
+            {
+                brickimg = Image.FromFile("brick.png");
+            }
+        }
         private void GameField_Paint(object sender, PaintEventArgs e)
         {
             
