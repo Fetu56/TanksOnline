@@ -35,15 +35,17 @@ namespace Client
                    
                 }
             }
-            catch (Exception ex)
-            {
-
-            }
+            catch (Exception)
+            {}
             Console.Read();
         }
         public void SendTank(TanksLib.Tank tank)
         {
             socket.Send(Encoding.Unicode.GetBytes(JsonSerializer.Serialize<TanksLib.Tank>(tank)));
+        }
+        public void Send(string str)
+        {
+            socket.Send(Encoding.Unicode.GetBytes(str));
         }
         public string GetString()
         {

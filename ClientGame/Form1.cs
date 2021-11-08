@@ -44,7 +44,7 @@ namespace ClientGame
             SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
             this.gameField.Paint += GameField_Paint;
             this.gameField.BackgroundImage = brickimg;
-            client.SendTank(new Tank() { name = "PL-"+id.ToString(), cords = new Point(100, 100), speed = 15, id = id, bulletref = 0, hp = 100});
+            client.SendTank(new Tank() { name = "PL-"+id.ToString(), cords = new Point(new Random().Next(50, 450), new Random().Next(50, 450)), speed = 15, id = id, bulletref = 0, hp = 99});
             this.KeyUp += FormKeyDown;
             game = new Task(GameManager);
             game.Start();
@@ -239,8 +239,12 @@ namespace ClientGame
             else if(e.KeyCode == Keys.Space || e.KeyCode == Keys.Enter)
             {
                 Tank tank = tanks[id - 1];
-                tank.bulletref = 100;
-                client.SendTank(tank);
+                if(tank.bulletref <= 0)
+                {
+                    tank.bulletref = 100;
+                    client.Send("shoot");
+                }
+                
             }
             
            

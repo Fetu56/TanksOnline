@@ -72,7 +72,7 @@ namespace Server
             bool joined = false;
             for(int i = 0; i < rooms.Count; i++)
             {
-                if (rooms[i].clients.Where(x => x.tankClient.hp > 0 && x.socket.Connected).Count() < 4)
+                if (rooms[i].clients.Where(x => x.tankClient != null  && x.tankClient.hp > 0 && x.socket.Connected).Count() < 4)
                 {
                     rooms[i].clients.Add(new Client(socketClient));
                     joined = true;

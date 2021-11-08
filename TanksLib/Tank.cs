@@ -30,5 +30,34 @@ namespace TanksLib
             }   
             return !res;
         }
+        public static Tank CheckCollision(List<Tank> tanks, Point pos, int size, bool yes)
+        {
+            Tank tank = null;
+            if(yes)
+            {
+                size = size + 1;
+                if (tanks != null && tanks.Count > 0)
+                {
+                    Rectangle position = new Rectangle(pos, new Size(size, size));
+                    try
+                    {
+                        tank = tanks.Where(x => {
+                            if (x != null && x.cords != pos)
+                            {
+                                return position.IntersectsWith(new Rectangle(x.cords, new Size(size, size)));
+                            }
+                            else return false;
+                        }).First();
+                    }
+                    catch
+                    {
+                        return null;
+                    }
+                    
+                }
+            }
+            
+            return tank;
+        }
     }
 }

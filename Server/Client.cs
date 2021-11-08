@@ -10,6 +10,8 @@ namespace Server
     {
         public Socket socket { get; private set; }
         public Task clientTask;
+
+        public bool shoot;
         public TanksLib.Tank tankClient { get; set; }
         public bool needToRef = false;
         public Client(Socket socketg)
@@ -36,8 +38,17 @@ namespace Server
             while (socket.Connected)
             {
                string data = this.GetString();
-               TanksLib.Tank tank = JsonSerializer.Deserialize<TanksLib.Tank>(data);
-               tankClient = tank;
+                if(data != "shoot")
+                {
+                    TanksLib.Tank tank = JsonSerializer.Deserialize<TanksLib.Tank>(data);
+                    tankClient = tank;
+                }
+                else
+                {
+                    tankClient.bulletref = 100;
+                    shoot = true;
+                }
+               
                 needToRef = true;
                 Console.WriteLine(data);
             }
