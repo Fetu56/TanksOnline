@@ -1,7 +1,7 @@
 ﻿
 namespace ClientGame
 {
-    partial class Form1
+    partial class ClientGame
     {
         /// <summary>
         ///  Required designer variable.
