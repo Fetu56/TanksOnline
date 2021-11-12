@@ -10,8 +10,4 @@
     <ProjectReference Include="..\TanksLib\TanksLib.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Log\" />
-  </ItemGroup>
-
 </Project>
