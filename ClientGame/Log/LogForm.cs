@@ -39,6 +39,7 @@ namespace LoginPass
 
         private void reg_Click(object sender, EventArgs e)
         {
+            socketCl.Send(Encoding.Unicode.GetBytes(InputBox.ShowInputDialog("Code input")));
             this.Visible = false;
             new Reg(socketCl).ShowDialog();
             this.Visible = true;
@@ -46,28 +47,24 @@ namespace LoginPass
 
         private void resetPass_Click(object sender, EventArgs e)
         {
-            //change
-            //string log = InputBox.ShowInputDialog("Login input");
-            //string email = GetEmailByLog(log);
-            //if(email != null)
-            //{
-            //    string code = random.Next(100, 999).ToString();
-            //    EmailSend.Send(email, code, log);
-            //    if (code == InputBox.ShowInputDialog("Input code"))
-            //    {
-            //        string pass = InputBox.ShowInputDialog("New pass");
-            //        if(pass == InputBox.ShowInputDialog("Comfirm pass"))
-            //        {
-            //            List<string> data = File.ReadAllLines("data.txt").ToList();
-            //            data[data.FindIndex(x => x.Split(' ')[0] == log)] = log + " " + Cash.ComputeSha256Hash(pass) + " " + email;
-            //            File.WriteAllLines("data.txt", data.ToArray());
-            //        }
-            //    }
-            //    else
-            //    {
-            //        MessageBox.Show("Неверный код!");
-            //    }
-            //}
+            string log = InputBox.ShowInputDialog("Login input");
+            socketCl.Send(Encoding.Unicode.GetBytes($"reset {log}"));
+            if(Client.Client.GetString(socketCl).StartsWith("code"))
+            {
+                socketCl.Send(Encoding.Unicode.GetBytes(InputBox.ShowInputDialog("Code input")));
+                if (Client.Client.GetString(socketCl).StartsWith("newpass"))
+                {
+                    socketCl.Send(Encoding.Unicode.GetBytes(Cash.ComputeSha256Hash(InputBox.ShowInputDialog("New password"))));
+                }
+                else
+                {
+                    MessageBox.Show("Error with code!");
+                }
+            }
+            else
+            {
+                MessageBox.Show("Error!");
+            }
 
         }
     }

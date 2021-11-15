@@ -3,7 +3,7 @@ using System.Text;
 
 namespace LoginPass
 {
-    static class Cash
+    public static class Cash
     {
         public static string ComputeSha256Hash(string rawData)
         {

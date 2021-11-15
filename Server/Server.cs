@@ -125,7 +125,7 @@ namespace Server
                 }
                 else if (data.StartsWith("reset"))
                 {
-
+                    CheckData.CheckReset(data.Split()[1], socket);
                 }
             }
         }

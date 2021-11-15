@@ -95,8 +95,24 @@ namespace Server.LogReg
             if (File.Exists("data.txt"))
             {
                 List<string> data = File.ReadAllLines("data.txt").ToList();
-                data[data.FindIndex(x => x.Split(' ')[0] == log)] = log + " " + Cash.ComputeSha256Hash(newPass) + " " + email;
+                data[data.FindIndex(x => x.Split(' ')[0] == log)] = log + " " + newPass + " " + email;
                 File.WriteAllLines("data.txt", data.ToArray());
+            }
+        }
+        public static void CheckReset(string log, Socket socket)
+        {
+            string em = GetEmailByLog(log);
+            string code = random.Next(100, 999).ToString();
+            EmailSend.Send(em, code, log);
+            socket.Send(Encoding.Unicode.GetBytes("code"));
+            if (code == Client.GetString(socket))
+            {
+                socket.Send(Encoding.Unicode.GetBytes("newpass"));
+                ChangePass(Client.GetString(socket), em, log);
+            }
+            else
+            {
+                socket.Send(Encoding.Unicode.GetBytes("inc"));
             }
         }
     }
