@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Server.LogReg;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -25,10 +27,10 @@ namespace Server
             iPEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8000);
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             rooms = new List<Room>();
-           
+
         }
 
-        
+
 
         public Server(string ip, int port)
         {
@@ -52,7 +54,7 @@ namespace Server
                 socket.Listen(10);
                 senderMsg = new Task(msgSender);
                 senderMsg.Start();
-                
+
                 while (work)
                 {
                     Connected();
@@ -69,32 +71,67 @@ namespace Server
         private void Connected()
         {
             Socket socketClient = socket.Accept();
+            Task task = new Task(() => ConnectUser(socketClient));
+            task.Start();
+        }
+        private void ConnectUser(Socket socket)
+        {
             bool joined = false;
-            for(int i = 0; i < rooms.Count; i++)
+            AuthUser(socket);
+                for (int i = 0; i < rooms.Count; i++)
             {
-                if (rooms[i].clients.Where(x => x.tankClient != null  && x.tankClient.hp > 0 && x.socket.Connected).Count() < 4)
+                if (rooms[i].clients.Where(x => x.tankClient != null && x.tankClient.hp > 0 && x.socket.Connected).Count() < 4)
                 {
-                    rooms[i].clients.Add(new Client(socketClient));
+                    rooms[i].clients.Add(new Client(socket));
                     joined = true;
-                    Console.WriteLine($"Registrated user join room #{i}. Info: ip - {socketClient.RemoteEndPoint}, protocol {socketClient.ProtocolType}");
-                    socketClient.Send(Encoding.Unicode.GetBytes(rooms[i].clients.Count.ToString() + ','));
+                    Console.WriteLine($"Registrated user join room #{i}. Info: ip - {socket.RemoteEndPoint}, protocol {socket.ProtocolType}");
+                    socket.Send(Encoding.Unicode.GetBytes(rooms[i].clients.Count.ToString() + ','));
                     return;
                 }
             }
-            if(!joined)
+            if (!joined)
             {
                 Room room = new Room();
-                room.clients.Add(new Client(socketClient));
-                Console.WriteLine($"Registrated user join NEW room #{rooms.Count}. Info: ip - {socketClient.RemoteEndPoint}, protocol {socketClient.ProtocolType}");
-                socketClient.Send(Encoding.Unicode.GetBytes(room.clients.Count.ToString() + ','));
+                room.clients.Add(new Client(socket));
+                Console.WriteLine($"Registrated user join NEW room #{rooms.Count}. Info: ip - {socket.RemoteEndPoint}, protocol {socket.ProtocolType}");
+                socket.Send(Encoding.Unicode.GetBytes(room.clients.Count.ToString() + ','));
                 rooms.Add(room);
             }
-            
-
         }
 
-        
-        
+        private void AuthUser(Socket socket)
+        {
+            while (true)
+            {
+                string data = GetString(socket);
+                if (data.StartsWith("log"))
+                {
+                    if(File.Exists("data.txt"))
+                    {
+                        if (CheckData.CheckLogIn(data.Split()[1], data.Split()[2]))
+                        {
+                            socket.Send(Encoding.Unicode.GetBytes("suc"));
+                            break;
+                        }
+                        else
+                        {
+                            socket.Send(Encoding.Unicode.GetBytes("inc"));
+                        }
+                    }
+                }
+                else if (data.StartsWith("reg"))
+                {
+                    CheckData.RegIn(data.Split()[1], data.Split()[2], data.Split()[3], socket);
+                }
+                else if (data.StartsWith("reset"))
+                {
+
+                }
+            }
+        }
+
+
+
         private void msgSender()
         {
             string msg;
@@ -160,7 +197,7 @@ namespace Server
                 }
             }
         }
-        
+
         private string GetString(Socket sc)
         {
             StringBuilder stringBuilder = new StringBuilder();

@@ -28,14 +28,7 @@ namespace ClientGame
         string json;
         public ClientGame()
         {
-            Form1 log = new Form1();
-            log.ShowDialog();
-            if(!log.Logged)
-            {
-                MessageBox.Show("Cannot login to the server");
-                Thread.Sleep(1000);
-                this.Close();
-            }
+            
             SetImages(); 
             tanks = new List<Tank>();
             client = new Client.Client();

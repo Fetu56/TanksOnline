@@ -38,7 +38,7 @@ namespace Server
                     if (clients.Where(x => x!= null && x.needToRef).Count() > 0)
                     {
                         Thread.Sleep(10);
-                        clients.ForEach(x => x.tankClient.bulletref -= 20) ;
+                        clients.ForEach(x => { if (x != null) x.tankClient.bulletref -= 20; }) ;
                         RefreshActions();
                     }
                 }
@@ -60,7 +60,7 @@ namespace Server
         public void RefreshActions()
         {
             List<Tank> tanks = new List<Tank>();
-            clients.ForEach(x => tanks.Add(x.socket.Connected && x.tankClient.hp > 0 ? x.tankClient : null));
+            clients.ForEach(x => { if (x.tankClient != null) tanks.Add(x.socket.Connected && x.tankClient.hp > 0 ? x.tankClient : null); });
             CheckShoots();
             SendMsgToAll(JsonSerializer.Serialize<List<Tank>>(tanks));
             //Console.WriteLine($"Data sended to users, {tanks.Where(x => x != null).Count()} of tanks.");

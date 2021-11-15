@@ -1,14 +1,7 @@
 ﻿using ClientGame.Log;
-using Microsoft.VisualBasic;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.IO;
-using System.Linq;
+using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace LoginPass
@@ -16,9 +9,11 @@ namespace LoginPass
     public partial class Reg : Form
     {
         Random random = new Random();
-        public Reg()
+        Socket socket;
+        public Reg(Socket socketcl)
         {
             InitializeComponent();
+            socket = socketcl;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -30,7 +25,7 @@ namespace LoginPass
         {
             if(textPass.Text == textPassConf.Text && textLog.Text.Length >= 3 && textEm.Text.Length >= 3 && textPass.Text.Length >= 3)
             {
-                if(RegIn(textLog.Text, textPass.Text))
+                if(RegSd())
                 {
                     MessageBox.Show("Successfull auth!");
                     this.Close();
@@ -40,51 +35,29 @@ namespace LoginPass
                     MessageBox.Show("Problems with registration.");
                 }
             }
-            else
+            else if(textPass.Text != textPassConf.Text)
             {
                 MessageBox.Show("Incorrect passwords!");
             }
-        }
-        private bool RegIn(string log, string pas)
-        {
-            bool res = false;
-            if(File.Exists("data.txt"))
-            {
-                if (File.ReadAllLines("data.txt").ToList().Where(x => x.Split(' ')[0] == log).Count() == 0)
-                {
-                    try
-                    {
-                        string code = random.Next(100, 999).ToString();
-                        EmailSend.Send(textEm.Text, code, textLog.Text);
-                        if (code == InputBox.ShowInputDialog("Input code"))
-                        {
-                            File.AppendAllText("data.txt", $"{log} {Cash.ComputeSha256Hash(pas)} {textEm.Text}\n");
-                            res = true;
-                        }
-
-                        
-                    }catch { }
-                }
-            }
             else
             {
-                try
-                {
-                    string code = random.Next(100, 999).ToString();
-                    EmailSend.Send(textEm.Text, code, textLog.Text);
-                    if (code == InputBox.ShowInputDialog("Input code"))
-                    {
-                        File.Create("data.txt").Close();
-                        File.AppendAllText("data.txt", $"{log} {Cash.ComputeSha256Hash(pas)} {textEm.Text}\n");
-                        res = true;
-                    }
-                }
-                catch { }
-
-                
+                MessageBox.Show("Check your data!");
             }
-            GC.Collect();
+        }
+        private bool RegSd()
+        {
+            bool res = false;
+            socket.Send(Encoding.Unicode.GetBytes($"reg {textLog.Text} {textPass.Text} {textEm.Text}"));
+            if (Client.Client.GetString(socket).StartsWith("code"))
+            {
+                socket.Send(Encoding.Unicode.GetBytes(InputBox.ShowInputDialog("Code input")));
+                if(Client.Client.GetString(socket).StartsWith("sucr"))
+                {
+                    res = true;
+                }
+            }
             return res;
         }
+        
     }
 }

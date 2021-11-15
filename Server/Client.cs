@@ -65,5 +65,17 @@ namespace Server
             } while (socket.Available > 0);
             return stringBuilder.ToString();
         }
+        public static string GetString(Socket socket)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            int bytes = 0;
+            byte[] data = new byte[256];
+            do
+            {
+                bytes = socket.Receive(data);
+                stringBuilder.Append(Encoding.Unicode.GetString(data, 0, bytes));
+            } while (socket.Available > 0);
+            return stringBuilder.ToString();
+        }
     }
 }
