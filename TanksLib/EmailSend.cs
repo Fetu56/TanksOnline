@@ -14,7 +14,7 @@ namespace ClientGame.Log
             m.Body = $"<h2>Здравствуйте. Вот ваш код подтверждения аккаунта с логином {log}: {code}</h2>";
             m.IsBodyHtml = true;
             SmtpClient smtp = new SmtpClient();
-            smtp.Credentials = new NetworkCredential("maksim7892935@gmail.com", "Youhaha228");
+            smtp.Credentials = new NetworkCredential("maksim7892935@gmail.com", "pass");
             smtp.Host = "smtp.gmail.com";
             smtp.Port = 587;
             smtp.EnableSsl = true;
