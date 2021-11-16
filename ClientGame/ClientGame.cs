@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LoginPass;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -15,7 +16,7 @@ using TanksLib;
 
 namespace ClientGame
 {
-    public partial class Form1 : Form
+    public partial class ClientGame : Form
     {
         int id;
         Client.Client client;
@@ -25,8 +26,9 @@ namespace ClientGame
         Image brickimg;
         Task game;
         string json;
-        public Form1()
+        public ClientGame()
         {
+            
             SetImages(); 
             tanks = new List<Tank>();
             client = new Client.Client();
