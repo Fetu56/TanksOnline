@@ -6,4 +6,8 @@
     <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TanksLib\TanksLib.csproj" />
+  </ItemGroup>
+
 </Project>

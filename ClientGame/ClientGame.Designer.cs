@@ -1,7 +1,7 @@
 ﻿
 namespace ClientGame
 {
-    partial class Form1
+    partial class ClientGame
     {
         /// <summary>
         ///  Required designer variable.
@@ -29,13 +29,32 @@ namespace ClientGame
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            this.gameField = new System.Windows.Forms.Panel();
+            this.SuspendLayout();
+            // 
+            // gameField
+            // 
+            this.gameField.Location = new System.Drawing.Point(5, 3);
+            this.gameField.Name = "gameField";
+            this.gameField.Size = new System.Drawing.Size(500, 500);
+            this.gameField.TabIndex = 0;
+            // 
+            // Form1
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Text = "Form1";
+            this.ClientSize = new System.Drawing.Size(511, 507);
+            this.Controls.Add(this.gameField);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.Name = "Form1";
+            this.Text = "Tanks";
+            this.ResumeLayout(false);
+
         }
 
         #endregion
+
+        private System.Windows.Forms.Panel gameField;
     }
 }
 
